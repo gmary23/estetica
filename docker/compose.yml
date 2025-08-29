@@ -1,0 +1,66 @@
+services:
+  app:
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+      target: development
+      args: # <--- CORREÇÃO 1: Adicionado para instalar devDependencies
+        NODE_ENV: development
+    ports:
+      - "3000:3000"
+    environment:
+      TZ: America/Fortaleza
+      NODE_ENV: development
+      DATABASE_URL: postgresql://postgres:password@mundy-db:5432/mundy_db?schema=public
+    volumes:
+      # <--- CORREÇÃO 2: Mapeia o código local, mas preserva o node_modules do contêiner
+      - ../:/app
+      - /app/node_modules
+    depends_on:
+      - db
+    networks:
+      - est-network
+    # <--- CORREÇÃO 3: O comando agora apenas inicia a aplicação
+    # command: npm run dev
+      
+  db:
+    image: postgres:15
+    restart: always
+    ports:
+      - '5432:5432'
+    env_file:
+      - ../.env
+    # environment:
+    #   POSTGRES_USER: postgres
+    #   POSTGRES_PASSWORD: password
+    #   POSTGRES_DB: est_db
+    networks:
+      - est-network
+    volumes:
+      - pgest_data:/var/lib/postgresql/data
+    # A linha 'command' aqui pode ser removida se estiver usando a configuração padrão do Postgres
+ 
+  prisma:
+    image: node:18-alpine
+    volumes:
+      - ../:/app
+      - /app/node_modules # <--- CORREÇÃO BÔNUS: Adicionado aqui também pela mesma razão
+    working_dir: /app
+    command: >
+      sh -c "npx prisma studio --schema=./prisma/schema.prisma"
+    ports:
+      - "5555:5555"
+    depends_on:
+      - db
+    env_file:
+      - ../.env
+    networks:
+      - est-network
+
+volumes:
+  pgest_data:
+
+networks:
+  est-network:
+    driver: bridge
+ 
