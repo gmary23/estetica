@@ -1,0 +1,20 @@
+
+# Configurações do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Outras pastas/cache
+.cache
+dist

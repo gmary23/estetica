@@ -24,12 +24,17 @@ RUN npm run build
 
 # Etapa 3: Desenvolvimento - A etapa que nosso Dev Container vai usar
 FROM base AS development
+# RUN adduser --disabled-password --gecos '' node
+
 WORKDIR /app
 
 # 👇 A MUDANÇA MAIS IMPORTANTE ESTÁ AQUI 👇
 # Copia o resto do código-fonte, já definindo o 'node' como dono dos arquivos.
 # Isso evita todos os nossos problemas de permissão.
-COPY --chown=node:node . .
+# COPY --chown=node:node . .
+RUN chown -R node:node /app
+
+COPY . .
 
 # Define o usuário padrão para este estágio.
 # Isso significa que o CMD e qualquer comando futuro será executado como 'node'.
